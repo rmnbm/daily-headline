@@ -28,4 +28,5 @@ jobs:
           NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
+          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
         run: python backend/main.py
