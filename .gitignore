@@ -1,0 +1,15 @@
+# Python
+**/venv/
+**/__pycache__/
+*.pyc
+
+# Foundry / Solidity
+out/
+cache/
+broadcast/
+lib/
+
+# Secrets & OS
+.env
+**/.env
+.DS_Store
