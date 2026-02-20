@@ -27,4 +27,5 @@ jobs:
           RPC_URL: ${{ secrets.RPC_URL }}
           NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
         run: python backend/main.py
