@@ -25,4 +25,5 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           RPC_URL: ${{ secrets.RPC_URL }}
+          NYT_API_KEY: ${{ secrets.NYT_API_KEY }}
         run: python backend/main.py
