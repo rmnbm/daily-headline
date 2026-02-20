@@ -124,7 +124,7 @@ def update_smart_contract(token_uri: str) -> str:
     
     # Sign and broadcast
     signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
     
     # Wait for the block to be mined
     w3.eth.wait_for_transaction_receipt(tx_hash)
