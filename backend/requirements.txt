@@ -1,3 +1,5 @@
 web3
 python-dotenv
 requests
+huggingface_hub>=0.30
+pillow

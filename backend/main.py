@@ -1,5 +1,8 @@
+import io
 import os
+import time
 import requests
+from huggingface_hub import InferenceClient
 from web3 import Web3
 from datetime import datetime
 from dotenv import load_dotenv
@@ -53,36 +56,34 @@ def fetch_nyt_headline() -> str:
 
 def generate_ai_image(prompt: str) -> bytes:
     """
-    Pipes the headline into the Hugging Face router using Stable Diffusion.
+    Generates an image from the headline with FLUX.1-schnell via Hugging Face
+    Inference Providers.
     """
     hf_token = os.getenv("HF_TOKEN")
-    
-    
-    api_url = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
-    
-    headers = {
-        "Authorization": f"Bearer {hf_token}",
-        "Content-Type": "application/json"
-    }
-    
-    # Stylized prompt 
+    if not hf_token:
+        raise ValueError("HF_TOKEN is missing from environment variables.")
+
+    client = InferenceClient(provider="auto", api_key=hf_token)
+
+    # Stylized prompt
     enhanced_prompt = f"Professional digital art, newspaper aesthetic for: {prompt}"
-    payload = {"inputs": enhanced_prompt}
 
-    # Attempt to generate (with a retry if the model is loading)
+    last_error = None
     for attempt in range(3):
-        response = requests.post(api_url, headers=headers, json=payload)
-        
-        if response.status_code == 200:
-            return response.content
-        elif response.status_code == 503:
-            print(f"Model is waking up (Attempt {attempt+1}/3)... waiting 20s.")
-            import time
+        try:
+            image = client.text_to_image(
+                enhanced_prompt,
+                model="black-forest-labs/FLUX.1-schnell",
+            )
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG")
+            return buffer.getvalue()
+        except Exception as e:
+            last_error = e
+            print(f"Image generation failed (Attempt {attempt+1}/3): {e}")
             time.sleep(20)
-        else:
-            response.raise_for_status()
 
-    raise Exception("Hugging Face model failed to load after multiple attempts.")
+    raise Exception(f"Image generation failed after multiple attempts: {last_error}")
 
 def upload_file_to_pinata(file_bytes: bytes, filename: str) -> str:
     url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
