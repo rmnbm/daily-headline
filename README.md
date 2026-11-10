@@ -4,7 +4,7 @@ An autonomous pipeline that fetches the daily **New York Times** headline, gener
 
 ## 🚀 How it Works
 1. **Fetch:** Python script calls the NYT Top Stories API.
-2. **Generate:** The headline is sent to Hugging Face's FLUX.1 model to create a high-quality newspaper-style image.
+2. **Generate:** The headline is sent to the FLUX.1 model on Cloudflare Workers AI to create a high-quality newspaper-style image.
 3. **Store:** Image and Metadata JSON are pinned to IPFS via Pinata.
 4. **Mint/Update:** The smart contract's `tokenURI` is updated on-chain via Web3.py.
 5. **Automate:** GitHub Actions runs this entire flow every day at 08:00 UTC.
@@ -12,7 +12,7 @@ An autonomous pipeline that fetches the daily **New York Times** headline, gener
 ## 🛠 Tech Stack
 - **Smart Contracts:** Solidity, Foundry, OpenZeppelin
 - **Backend:** Python, Web3.py
-- **AI/Storage:** Hugging Face API, Pinata (IPFS)
+- **AI/Storage:** Cloudflare Workers AI, Pinata (IPFS)
 - **Automation:** GitHub Actions
 
 ## 📂 Project Structure
