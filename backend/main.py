@@ -1,8 +1,9 @@
+import base64
 import io
 import os
 import time
 import requests
-from huggingface_hub import InferenceClient
+from PIL import Image
 from web3 import Web3
 from datetime import datetime
 from dotenv import load_dotenv
@@ -56,28 +57,38 @@ def fetch_nyt_headline() -> str:
 
 def generate_ai_image(prompt: str) -> bytes:
     """
-    Generates an image from the headline with FLUX.1-schnell via Hugging Face
-    Inference Providers.
+    Generates an image from the headline with FLUX.1-schnell via Cloudflare
+    Workers AI (free daily allowance). Returns PNG bytes.
     """
-    hf_token = os.getenv("HF_TOKEN")
-    if not hf_token:
-        raise ValueError("HF_TOKEN is missing from environment variables.")
+    account_id = os.getenv("CF_ACCOUNT_ID")
+    api_token = os.getenv("CF_API_TOKEN")
+    if not account_id or not api_token:
+        raise ValueError("CF_ACCOUNT_ID and CF_API_TOKEN must be set in environment variables.")
 
-    client = InferenceClient(provider="auto", api_key=hf_token)
+    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/@cf/black-forest-labs/flux-1-schnell"
+    headers = {"Authorization": f"Bearer {api_token}"}
 
     # Stylized prompt
     enhanced_prompt = f"Professional digital art, newspaper aesthetic for: {prompt}"
+    payload = {"prompt": enhanced_prompt, "steps": 4}
 
     last_error = None
     for attempt in range(3):
         try:
-            image = client.text_to_image(
-                enhanced_prompt,
-                model="black-forest-labs/FLUX.1-schnell",
-            )
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
+            # Auth/quota/request errors won't fix themselves: fail immediately
+            if 400 <= response.status_code < 500 and response.status_code != 429:
+                raise RuntimeError(f"Cloudflare AI error {response.status_code}: {response.text[:300]}")
+            response.raise_for_status()
+
+            # The API returns a base64-encoded JPEG; convert to PNG
+            image_b64 = response.json()["result"]["image"]
+            image = Image.open(io.BytesIO(base64.b64decode(image_b64)))
             buffer = io.BytesIO()
             image.save(buffer, format="PNG")
             return buffer.getvalue()
+        except RuntimeError:
+            raise
         except Exception as e:
             last_error = e
             print(f"Image generation failed (Attempt {attempt+1}/3): {e}")
