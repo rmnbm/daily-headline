@@ -1,4 +1,7 @@
-web3
-python-dotenv
-requests
-pillow
+# Runtime dependencies (daily cron + API). Pinned for reproducible builds.
+fastapi==0.162.4
+pillow==13.0.0
+pydantic-settings==2.16.2
+requests==2.32.5
+uvicorn==0.54.0
+web3==7.14.1

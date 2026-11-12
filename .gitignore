@@ -13,3 +13,10 @@ lib/
 .env
 **/.env
 .DS_Store
+# Python tooling & local data
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+backend/data/
+*.db
