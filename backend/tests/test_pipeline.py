@@ -80,3 +80,16 @@ def test_cli_run_returns_1_when_a_step_fails(monkeypatch):
 def test_cli_requires_a_command():
     with pytest.raises(SystemExit):
         cli.main([])
+
+
+def test_cli_serve_starts_uvicorn(monkeypatch, settings, caplog):
+    import uvicorn
+
+    calls = []
+    monkeypatch.setattr(uvicorn, "run", lambda app, **kwargs: calls.append(kwargs))
+    monkeypatch.setattr(cli, "get_settings", lambda: settings)
+    settings.api_key = None
+
+    assert cli.main(["serve", "--port", "9000"]) == 0
+    assert calls[0]["port"] == 9000 and calls[0]["host"] == "127.0.0.1"
+    assert "API_KEY is not set" in caplog.text

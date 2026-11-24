@@ -3,7 +3,10 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=app --cov-report=term-missing"
-filterwarnings = ["ignore::DeprecationWarning:websockets.*"]
+filterwarnings = [
+    "ignore::DeprecationWarning:websockets.*",
+    "ignore:Using `httpx` with `starlette.testclient`",
+]
 
 [tool.coverage.run]
 branch = true
